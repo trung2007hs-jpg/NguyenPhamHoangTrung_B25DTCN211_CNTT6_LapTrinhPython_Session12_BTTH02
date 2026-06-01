@@ -16,7 +16,6 @@
 #    - 5 (Tính lãi): Nhập ID (active) -> Áp công thức tính lãi đúng hạn -> In kết quả.
 #    - 6 (Rút trước hạn): Nhập ID, Số tháng gửi (check > 0). Tháng gửi < Kỳ hạn -> Lãi 0.5%, ngược lại -> Lãi gốc. Tính tiền -> In kết quả.
 #    - 7 (Thoát): Break dừng vòng lặp. Sai menu -> Vào 'case _' báo nhập lại.
-# ================================================================================
 
 saving_accounts = [
     {
