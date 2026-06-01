@@ -228,7 +228,7 @@ while True:
                 print("Không tìm thấy mã sổ tiết kiệm")
         
         case "7":
-            print("\nThoát chương trình.")
+            print("\nCam on vi da den.")
             break
             
         case _:
