@@ -44,49 +44,54 @@ while True:
 4. Tất toán hoặc xóa sổ tiết kiệm
 5. Tính lãi dự kiến khi đến hạn
 6. Kiểm tra điều kiện rút trước hạn
-7. Thoát chương trình
-========================================================''')
+7. Thoát chương trình''')
     
     choice = input("Nhập lựa chọn của bạn (1-7): ").strip()
     
     match choice:
+
         case "1":
             if not saving_accounts:
                 print("Danh sách sổ tiết kiệm hiện đang trống")
             else:
-                print("\nDanh sách sổ tiết kiệm:")
-                for i, account in enumerate(saving_accounts, 1):
-                    print(f"{i}. Mã sổ: {account['account_id']} | Khách hàng: {account['customer_name']} | Số tiền gửi: {account['balance']} | Kỳ hạn: {account['term_months']} tháng | Lãi suất: {account['interest_rate']}%/năm | Trạng thái: {account['status']}")
+                print("Danh sách sổ tiết kiệm:")
+                for index, account in enumerate(saving_accounts, 1):
+                    print(f"{index}. Mã sổ: {account['account_id']} | Khách hàng: {account['customer_name']} | Số tiền gửi: {account['balance']} | Kỳ hạn: {account['term_months']} tháng | Lãi suất: {account['interest_rate']}%/năm | Trạng thái: {account['status']}")
 
         case "2":
-            print("\n--- MỞ SỔ TIẾT KIỆM MỚI ---")
             new_id = input("Nhập mã sổ tiết kiệm: ").strip().upper()
             if not new_id:
                 print("Mã sổ tiết kiệm không được để trống!")
                 continue
-                
-            is_duplicate = False
-            for account in saving_accounts:
-                if account["account_id"] == new_id:
-                    is_duplicate = True
-                    break
-            if is_duplicate:
+
+            if any(account["account_id"] == new_id for account in saving_accounts):
                 print("Mã sổ tiết kiệm đã tồn tại!")
-                continue 
+                continue
+                
             new_name = input("Nhập tên khách hàng: ").strip()
+
             if not new_name:
                 print("Tên khách hàng không được để trống")
                 continue
-                
+
             try:
                 new_balance = int(input("Nhập số tiền gửi: "))
-                new_term = int(input("Nhập kỳ hạn gửi theo tháng: "))
-                if new_balance <= 0 or new_term <= 0:
+                if new_balance <= 0:
                     print("Số tiền gửi hoặc kỳ hạn không hợp lệ")
                     continue
             except ValueError:
                 print("Số tiền gửi hoặc kỳ hạn không hợp lệ")
                 continue
+                
+            try:
+                new_term = int(input("Nhập kỳ hạn gửi theo tháng: "))
+                if new_term <= 0:
+                    print("Số tiền gửi hoặc kỳ hạn không hợp lệ")
+                    continue
+            except ValueError:
+                print("Số tiền gửi hoặc kỳ hạn không hợp lệ")
+                continue
+
             try:
                 new_rate = float(input("Nhập lãi suất năm: "))
                 if new_rate <= 0:
@@ -95,7 +100,7 @@ while True:
             except ValueError:
                 print("Lãi suất không hợp lệ!")
                 continue
-                
+
             saving_accounts.append({
                 "account_id": new_id,
                 "customer_name": new_name,
@@ -107,128 +112,133 @@ while True:
             print("Mở sổ tiết kiệm mới thành công!")
 
         case "3":
-            print("\n--- CẬP NHẬT THÔNG TIN SỔ TIẾT KIỆM ---")
             search_id = input("Nhập mã sổ tiết kiệm cần cập nhật: ").strip().upper()
             
-            is_exist = False
+            found_account = None
             for account in saving_accounts:
                 if account["account_id"] == search_id:
-                    is_exist = True
-                    
-                    if account["status"] == "closed":
-                        print("Không thể cập nhật sổ tiết kiệm đã tất toán!")
-                        break
-                        
-                    print(f"-> Đang sửa thông tin cho sổ của KH: {account['customer_name']}")
-                    update_name = input("Nhập tên khách hàng mới: ").strip()
-                    if update_name == "":
-                        print("Tên khách hàng không được để trống")
-                        break
-                    
-                    try:
-                        up_balance = int(input("Nhập số tiền gửi mới: "))
-                        up_term = int(input("Nhập kỳ hạn mới theo tháng: "))
-                        up_rate = float(input("Nhập lãi suất năm mới: "))
-                        
-                        if up_balance <= 0 or up_term <= 0 or up_rate <= 0:
-                            print("Dữ liệu nhập vào phải lớn hơn 0!")
-                            break
-                    except ValueError:
-                        print("Dữ liệu nhập vào không hợp lệ (phải là số)!")
-                        break
-                        
-                    account["customer_name"] = update_name
-                    account["balance"] = up_balance
-                    account["term_months"] = up_term
-                    account["interest_rate"] = up_rate
-                    print("Cập nhật thông tin sổ tiết kiệm thành công!")
+                    found_account = account
                     break
-                    
-            if not is_exist:
-                print("Không tìm thấy mã sổ tiết kiệm")
+
+            if not found_account:
+                print("Không tìm thấy mã sổ tiết kiệm!")
+                continue
+
+            if found_account["status"] == "closed":
+                print("Không thể cập nhật sổ tiết kiệm đã tất toán!")
+                continue
+                
+            update_name = input("Nhập tên khách hàng mới: ").strip()
+            if not update_name:
+                print("Tên khách hàng không được để trống")
+                continue
+                
+            try:
+                up_balance = int(input("Nhập số tiền gửi mới: "))
+                up_term = int(input("Nhập kỳ hạn mới theo tháng: "))
+                if up_balance <= 0 or up_term <= 0:
+                    print("Số tiền gửi hoặc kỳ hạn không hợp lệ")
+                    continue
+            except ValueError:
+                print("Số tiền gửi hoặc kỳ hạn không hợp lệ")
+                continue
+                
+            try:
+                up_rate = float(input("Nhập lãi suất năm mới: "))
+                if up_rate <= 0:
+                    print("Lãi suất không hợp lệ!")
+                    continue
+            except ValueError:
+                print("Lãi suất không hợp lệ!")
+                continue
+                
+            found_account["customer_name"] = update_name
+            found_account["balance"] = up_balance
+            found_account["term_months"] = up_term
+            found_account["interest_rate"] = up_rate
+            print("Cập nhật thông tin sổ tiết kiệm thành công!")
 
         case "4":
-            print("\n--- TẤT TOÁN SỔ TIẾT KIỆM ---")
             search_id = input("Nhập mã sổ tiết kiệm cần tất toán/xóa: ").strip().upper()
             
-            is_exist = False
+            found_account = None
             for account in saving_accounts:
                 if account["account_id"] == search_id:
-                    is_exist = True
-                    account["status"] = "closed"
-                    print(f"Đã tất toán thành công sổ {search_id}. Trạng thái chuyển thành 'closed'.")
+                    found_account = account
                     break
                     
-            if not is_exist:
+            if not found_account:
                 print("Không tìm thấy mã sổ tiết kiệm")
+                continue
+                
+            found_account["status"] = "closed"
+            print(f"Đã tất toán thành công sổ {search_id}. Trạng thái chuyển thành 'closed'.")
 
         case "5":
-            print("\n--- TÌM LÃI DỰ KIẾN KHI ĐẾN HẠN ---")
             search_id = input("Nhập mã sổ tiết kiệm cần tính lãi: ").strip().upper()
             
-            is_exist = False
+            found_account = None
             for account in saving_accounts:
                 if account["account_id"] == search_id:
-                    is_exist = True
-                    
-                    if account["status"] == "closed":
-                        print("Không thể thao tác với sổ tiết kiệm đã tất toán")
-                        break
-                        
-                    interest = account["balance"] * account["interest_rate"] / 100 * account["term_months"] / 12
-                    total_receive = account["balance"] + interest
-                    
-                    print(f"Khách hàng: {account['customer_name']}")
-                    print(f"- Tiền gốc: {account['balance']} VND")
-                    print(f"- Tiền lãi dự kiến: {round(interest, 2)} VND")
-                    print(f"- Tổng tiền nhận khi đến hạn: {round(total_receive, 2)} VND")
+                    found_account = account
                     break
                     
-            if not is_exist:
+            if not found_account:
                 print("Không tìm thấy mã sổ tiết kiệm")
+                continue
+                
+            if found_account["status"] == "closed":
+                print("Không thể thao tác với sổ tiết kiệm đã tất toán")
+                continue
+                
+            interest = found_account["balance"] * found_account["interest_rate"] / 100 * found_account["term_months"] / 12
+            total_receive = found_account["balance"] + interest
+            
+            print(f"Khách hàng: {found_account['customer_name']}")
+            print(f"- Tiền gốc: {found_account['balance']} VND")
+            print(f"- Tiền lãi dự kiến: {round(interest, 2)} VND")
+            print(f"- Tổng tiền nhận khi đến hạn: {round(total_receive, 2)} VND")
 
         case "6":
-            print("\n--- KIỂM TRA ĐIỀU KIỆN RÚT TRƯỚC HẠN ---")
             search_id = input("Nhập mã sổ tiết kiệm cần kiểm tra: ").strip().upper()
             
-            is_exist = False
+            found_account = None
             for account in saving_accounts:
                 if account["account_id"] == search_id:
-                    is_exist = True
-                    
-                    if account["status"] == "closed":
-                        print("Không thể thao tác với sổ tiết kiệm đã tất toán")
-                        break
-                    
-                    try:
-                        actual_months = int(input("Nhập số tháng thực gửi: "))
-                        if actual_months <= 0:
-                            print("Số tháng thực gửi không hợp lệ!")
-                            break
-                    except ValueError:
-                        print("Số tháng thực gửi không hợp lệ!")
-                        break
-                        
-                    if actual_months < account["term_months"]:
-                        print("Rút trước hạn! Lãi suất áp dụng: 0.5%/năm")
-                        applied_rate = 0.5
-                    else:
-                        print("Đúng hoặc quá hạn! Áp dụng lãi suất gốc.")
-                        applied_rate = account["interest_rate"]
-                        
-                    actual_interest = account["balance"] * applied_rate / 100 * actual_months / 12
-                    actual_total = account["balance"] + actual_interest
-                    
-                    print(f"--- KẾT QUẢ THỰC NHẬN ---")
-                    print(f"- Tiền lãi thực nhận: {round(actual_interest, 2)} VND")
-                    print(f"- Tổng số tiền thực nhận về: {round(actual_total, 2)} VND")
+                    found_account = account
                     break
                     
-            if not is_exist:
+            if not found_account:
                 print("Không tìm thấy mã sổ tiết kiệm")
-        
+                continue
+                
+            if found_account["status"] == "closed":
+                print("Không thể thao tác với sổ tiết kiệm đã tất toán")
+                continue
+                
+            try:
+                actual_months = int(input("Nhập số tháng thực gửi: "))
+                if actual_months <= 0:
+                    print("Số tháng thực gửi không hợp lệ!")
+                    continue
+            except ValueError:
+                print("Số tháng thực gửi không hợp lệ!")
+                continue
+                
+            if actual_months < found_account["term_months"]:
+                applied_rate = 0.5
+            else:
+                applied_rate = found_account["interest_rate"]
+                
+            actual_interest = found_account["balance"] * applied_rate / 100 * actual_months / 12
+            actual_total = found_account["balance"] + actual_interest
+            
+            print(f"--- KẾT QUẢ THỰC NHẬN ---")
+            print(f"- Tiền lãi thực nhận: {round(actual_interest, 2)} VND")
+            print(f"- Tổng số tiền thực nhận về: {round(actual_total, 2)} VND")
+
         case "7":
-            print("\nCam on vi da den.")
+            print('\nCam on vi da den')
             break
             
         case _:
